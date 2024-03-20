@@ -8,6 +8,7 @@ from django.db import (
 
 
 class Command(BaseCommand):
+    # 创建需要使用SQL缓存后端的表。
     help = "Creates the tables needed to use the SQL cache backend."
 
     requires_system_checks = []
@@ -15,16 +16,19 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             'args', metavar='table_name', nargs='*',
+            # 可选的表名。否则，将使用 settings.CACHES 来查找缓存表。
             help='Optional table names. Otherwise, settings.CACHES is used to find cache tables.',
         )
         parser.add_argument(
             '--database',
             default=DEFAULT_DB_ALIAS,
+            # 指定要安装缓存表的数据库。默认为 default 数据库。
             help='Nominates a database onto which the cache tables will be '
                  'installed. Defaults to the "default" database.',
         )
         parser.add_argument(
             '--dry-run', action='store_true',
+            # 不创建表，只是打印将要运行的 SQL 语句。
             help='Does not create the table, just prints the SQL that would be run.',
         )
 
@@ -55,6 +59,7 @@ class Command(BaseCommand):
 
         fields = (
             # "key" is a reserved word in MySQL, so use "cache_key" instead.
+            # "key" 是 MySQL 中的保留字，因此使用 "cache_key" 代替。
             models.CharField(name='cache_key', max_length=255, unique=True, primary_key=True),
             models.TextField(name='value'),
             models.DateTimeField(name='expires', db_index=True),
@@ -86,6 +91,7 @@ class Command(BaseCommand):
 
         full_statement = "\n".join(full_statement)
 
+        # 输出准备运行的SQL语句
         if dry_run:
             self.stdout.write(full_statement)
             for statement in index_output:
