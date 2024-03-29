@@ -65,6 +65,8 @@ class LazySettings(LazyObject):
         Load the settings module pointed to by the environment variable. This
         is used the first time settings are needed, if the user hasn't
         configured settings manually.
+
+        加载由环境变量指向的设置模块。如果用户没有手动配置设置，这将在第一次需要设置时使用。
         """
         settings_module = os.environ.get(ENVIRONMENT_VARIABLE)
         if not settings_module:
@@ -86,13 +88,19 @@ class LazySettings(LazyObject):
         }
 
     def __getattr__(self, name):
-        """Return the value of a setting and cache it in self.__dict__."""
+        """
+        Return the value of a setting and cache it in self.__dict__.
+
+        返回 setting 的值并将其缓存在 self.__dict__ 中。
+        """
         if self._wrapped is empty:
             self._setup(name)
         val = getattr(self._wrapped, name)
 
         # Special case some settings which require further modification.
         # This is done here for performance reasons so the modified value is cached.
+        # 特殊情况下，一些需要进一步修改的设置。
+        # 出于性能原因，在这里执行此操作，以便缓存修改后的值。
         if name in {'MEDIA_URL', 'STATIC_URL'} and val is not None:
             val = self._add_script_prefix(val)
         elif name == 'SECRET_KEY' and not val:
@@ -123,8 +131,7 @@ class LazySettings(LazyObject):
         parameter sets where to retrieve any unspecified values from (its
         argument must support attribute access (__getattr__)).
 
-        调用以手动配置 settings
-        'default_settings'参数设置从哪里检索任何未指定的值(其参数必须支持属性访问(__getattr__))。
+        这个方法用于手动配置 settings. default_settings 参数指定从哪里获取任何未指定值（其参数必须支持属性访问 (__getattr__)）
         """
         if self._wrapped is not empty:
             raise RuntimeError('Settings already configured.')

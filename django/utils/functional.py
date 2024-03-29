@@ -255,14 +255,22 @@ class LazyObject:
 
     By subclassing, you have the opportunity to intercept and alter the
     instantiation. If you don't need to do that, use SimpleLazyObject.
+
+    一个包装另一个类的包装器，可以用来延迟实例化被包装的类。
+
+    通过子类化，您有机会拦截和更改实例化过程。如果您不需要这样做，请使用 SimpleLazyObject 类
     """
 
     # Avoid infinite recursion when tracing __init__ (#19456).
+    # 避免在跟踪__init__时发生无限递归 (#19456)。
     _wrapped = None
 
     def __init__(self):
         # Note: if a subclass overrides __init__(), it will likely need to
         # override __copy__() and __deepcopy__() as well.
+
+        # 注意：如果一个子类覆盖了__init__()方法，那么很可能需要同时覆盖__copy__()和__deepcopy__()方法。
+
         self._wrapped = empty
 
     __getattr__ = new_method_proxy(getattr)
@@ -270,6 +278,7 @@ class LazyObject:
     def __setattr__(self, name, value):
         if name == "_wrapped":
             # Assign to __dict__ to avoid infinite __setattr__ loops.
+            # 为了避免无限的__setattr__循环，请将值分配给__dict__。
             self.__dict__["_wrapped"] = value
         else:
             if self._wrapped is empty:
@@ -286,6 +295,8 @@ class LazyObject:
     def _setup(self):
         """
         Must be implemented by subclasses to initialize the wrapped object.
+
+        必须由子类实现，用于初始化包装对象。
         """
         raise NotImplementedError('subclasses of LazyObject must provide a _setup() method')
 
@@ -303,6 +314,13 @@ class LazyObject:
     # pickle the wrapped object as the unpickler's argument, so that pickle
     # will pickle it normally, and then the unpickler simply returns its
     # argument.
+
+    # 由于我们在下面修改了__class__，我们让pickle无法确定我们正在pickle的是哪个类。我们将不得不初始化包装对象才能成功pickle它，所以我们最好pickle包装对象，因为它们应该以相同的方式工作。
+    #
+    # 不幸的是，如果我们试图简单地像包装对象一样行事，当pickle获取我们的id()
+    # 时，这种欺骗就会崩溃。因此，实际上，pickle认为我们是与包装对象不同但具有相同__dict__的对象。这可能会导致问题（请参见＃25389）。
+    #
+    # 因此，我们定义了自己的__reduce__方法和自定义反pickle程序。我们将包装对象pickle为反pickle程序的参数，以便pickle会正常pickle它，然后反pickle程序简单地返回其参数。
     def __reduce__(self):
         if self._wrapped is empty:
             self._setup()
@@ -358,7 +376,9 @@ def unpickle_lazyobject(wrapped):
     """
     return wrapped
 
-
+# -----------------------------------------------
+#  核心代码似乎没有用到这个类,暂时忽略
+# -----------------------------------------------
 class SimpleLazyObject(LazyObject):
     """
     A lazy object initialized from any function.
