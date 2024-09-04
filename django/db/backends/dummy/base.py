@@ -5,6 +5,12 @@ Django uses this if the database ENGINE setting is empty (None or empty string).
 
 Each of these API functions, except connection.close(), raise
 ImproperlyConfigured.
+
+Django 的虚拟数据库后端。
+
+如果数据库的 ENGINE 设置为空（None 或空字符串），Django 会使用这个虚拟后端。
+
+除了 connection.close() 之外，这些 API 函数中的每一个都会引发 ImproperlyConfigured 异常。
 """
 
 from django.core.exceptions import ImproperlyConfigured

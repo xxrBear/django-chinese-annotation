@@ -51,9 +51,9 @@ class DatabaseCache(BaseDatabaseCache):
     # conversion and adaptation infrastructure is then used to avoid comparing
     # aware and naive datetimes accidentally.
 
-    # 该类使用数据库连接提供的游标
-    # 这意味着它将过期值读取为感知日期时间或朴素日期时间，具体取决于 USE_TZ 的值，以及数据库是否支持时区
-    # 然后使用ORM的转换和适应基础设施来避免意外地比较有意识和过早的日期时间
+    # 这个类使用数据库连接提供的游标。
+    # 这意味着它读取到期值时，会根据 USE_TZ 的值以及数据库是否支持时区，将其作为有时区或无时区的日期时间来处理。
+    # 然后，ORM 的转换和适配机制将被用来避免无意中比较有时区和无时区的日期时间。
 
     pickle_protocol = pickle.HIGHEST_PROTOCOL
 

@@ -19,4 +19,4 @@ tests/report/
 
 # myconfig
 .idea/
-
+.DS_Store
